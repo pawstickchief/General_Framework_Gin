@@ -1,0 +1,50 @@
+app_name: "GeneralFrameworkApp"
+jwt_secret: "pawstickchief"
+server:
+  address: "0.0.0.0"
+  port: 8080
+  redirect_port: 8443
+  client_url: "http://127.0.0.1"
+  cert_file: "F:/data/workspace/General_Framework_Gin/ssl/file/cert.pem"
+  key_file: "F:/data/workspace/General_Framework_Gin/ssl/file/privkey.key"
+log:
+  mode: "dev"  # 可选: dev, build
+  filename: "./logs/app.log"
+  max_size: 10      # 单个日志文件最大尺寸 (MB)
+  max_backups: 5    # 保留的旧日志文件数量
+  max_age: 7        # 日志保存天数
+  compress: true    # 是否压缩日志文件
+
+file_storage:
+  upload_dir: "./uploads"
+  max_file_size: 20  # 文件最大尺寸 (MB)
+  allowed_types: ["image/jpeg", "image/png", "application/pdf"]
+  enable_resume: true  # 是否启用断点续传
+  chunk_size: 5        # 单个分块大小 (MB)
+
+update:
+  server_url: "https://update.server.com"
+  platform: "linux"
+  app_name: "GeneralFrameworkApp"
+
+database:
+  mysql:
+    host: "dev.pawstickchief.com"
+    port: 8002
+    user: "admin"
+    password: "Mark1590"
+    dbname: "gin"
+    max_idle_conns: 20
+    max_conns: 100
+
+  etcd:
+    endpoints:
+      - "https://akile.pawstickchief.com:2379"
+    dial_timeout: 3000
+    ca_cert: "ssl/fullchain.pem"
+    cert_file: "ssl/cert.pem"
+    key_file: "ssl/privkey.pem"
+    server_name: "akile.pawstickchief.com"
+    etcdname: "admin"
+    password: "Mark1590"
+
