@@ -3,6 +3,7 @@ package middleware
 import (
 	"General_Framework_Gin/config"
 	"General_Framework_Gin/database/casbin"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -104,7 +105,7 @@ func CasbinMiddleware() gin.HandlerFunc {
 		sub := c.GetString("role") // 用户角色
 		obj := c.Request.URL.Path  // 请求路径
 		act := c.Request.Method    // 请求方法
-
+		fmt.Printf("角色: %s, 路径: %s, 方法: %s\n", sub, obj, act)
 		allowed, err := casbin.Enforcer.Enforce(sub, obj, act)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "权限验证失败"})

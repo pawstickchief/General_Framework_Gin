@@ -6,6 +6,7 @@ import "General_Framework_Gin/schemas/data"
 type Config struct {
 	AppName    string              `mapstructure:"app_name"`
 	JWTSecret  string              `mapstructure:"jwt_secret"`
+	Casbin     CasbinConfig        `mapstructure:"casbin"`
 	Server     ServerConfig        `mapstructure:"server"`
 	Log        LogConfig           `mapstructure:"log"`
 	Database   data.DatabaseConfig `mapstructure:"database"`
@@ -18,6 +19,10 @@ type UpdateConfig struct {
 	ServerURL string `mapstructure:"server_url"`
 	Platform  string `mapstructure:"platform"`
 	AppName   string `mapstructure:"app_name"`
+}
+type CasbinConfig struct {
+	ModelFile  string `mapstructure:"model_file"`
+	PolicyFile string `mapstructure:"policy_file"`
 }
 
 // ServerConfig 服务器配置

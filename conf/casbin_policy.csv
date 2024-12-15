@@ -1,14 +1,13 @@
-# 策略文件格式: p, 角色, 路径, 操作
 p, admin, /users, GET
 p, admin, /users, POST
 p, admin, /users, DELETE
 p, admin, /users/*, GET
 p, admin, /users/*, POST
 p, admin, /users/*, DELETE
-
 p, user, /profile, GET
+p, admin, /policies/*, POST
+p, admin, /upload, POST
+p, admin, /download, GET
 p, user, /profile/edit, POST
-
-# 角色继承关系
 g, admin_user, admin
 g, normal_user, user

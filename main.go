@@ -2,6 +2,7 @@ package main
 
 import (
 	"General_Framework_Gin/config"
+	"General_Framework_Gin/database/casbin"
 	"General_Framework_Gin/database/etcd"
 	"General_Framework_Gin/database/mysql"
 	"General_Framework_Gin/logger"
@@ -45,6 +46,8 @@ func main() {
 	etcd.Init()
 	logger.Log.Info("缓存和配置数据库初始化成功")
 
+	casbin.Init()
+	logger.Log.Info("权限文件初始化成功")
 	// 初始化 Gin 路由
 	r := routes.SetupRouter(config.AppConfig)
 	logger.Log.Info("Gin 路由初始化成功")

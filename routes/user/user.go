@@ -14,6 +14,7 @@ func RegisterUserRoutes(authGroup *gin.RouterGroup) {
 		userGroup.POST("/", createUser)
 		userGroup.PUT("/:id", updateUser)
 		userGroup.DELETE("/:id", deleteUser)
+
 	}
 }
 

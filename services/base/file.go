@@ -1,6 +1,7 @@
 package base
 
 import (
+	"General_Framework_Gin/config"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -10,8 +11,13 @@ import (
 	"strconv"
 )
 
-// HandleFileUpload 处理大文件、多文件和单文件上传，支持断点续传
 func HandleFileUpload(ctx *gin.Context, uploadDir string) error {
+
+	if err := ctx.Request.ParseMultipartForm(10 * 1024 * 1024); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "解析表单数据失败"})
+		return fmt.Errorf("解析表单数据失败: %v", err)
+	}
+	// 获取上传的文件
 	files := ctx.Request.MultipartForm.File["file"]
 	if len(files) == 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "没有上传的文件"})
@@ -20,28 +26,35 @@ func HandleFileUpload(ctx *gin.Context, uploadDir string) error {
 
 	var uploadedFiles []map[string]string
 	for _, file := range files {
+		// 创建目标文件路径
 		filePath := filepath.Join(uploadDir, file.Filename)
 
+		// 打开文件进行写入，若文件已存在，则进行追加
 		out, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			return fmt.Errorf("文件打开失败: %v", err)
 		}
 		defer out.Close()
 
+		// 打开源文件以读取数据
 		src, err := file.Open()
 		if err != nil {
 			return fmt.Errorf("文件读取失败: %v", err)
 		}
 		defer src.Close()
 
-		buffer := make([]byte, 10*1024*1024) // 10MB 缓冲区
+		// 设置读取缓冲区为 10MB
+		buffer := make([]byte, 10*1024*1024)
 		for {
+			// 读取文件到缓冲区
 			n, readErr := src.Read(buffer)
 			if n > 0 {
+				// 写入数据到目标文件
 				if _, writeErr := out.Write(buffer[:n]); writeErr != nil {
 					return fmt.Errorf("文件写入失败: %v", writeErr)
 				}
 			}
+			// 文件读取完毕
 			if readErr == io.EOF {
 				break
 			}
@@ -49,13 +62,15 @@ func HandleFileUpload(ctx *gin.Context, uploadDir string) error {
 				return fmt.Errorf("文件读取错误: %v", readErr)
 			}
 		}
-
+		downloadURL := fmt.Sprintf("https://%s:%d/download?filename=%s", config.AppConfig.Server.Address, config.AppConfig.Server.RedirectPort, file.Filename)
+		// 将文件上传信息存储
 		uploadedFiles = append(uploadedFiles, map[string]string{
 			"filename": file.Filename,
-			"filepath": filePath,
+			"filepath": downloadURL,
 		})
 	}
 
+	// 返回成功响应
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "文件上传成功",
 		"files":   uploadedFiles,
@@ -81,7 +96,7 @@ func HandleFileDownload(ctx *gin.Context, downloadDir string) {
 
 	fileInfo, _ := file.Stat()
 	fileSize := fileInfo.Size()
-
+	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
 	rangeHeader := ctx.GetHeader("Range")
 	if rangeHeader == "" {
 		ctx.Writer.Header().Set("Content-Length", strconv.FormatInt(fileSize, 10))

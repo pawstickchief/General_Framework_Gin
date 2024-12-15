@@ -1,12 +1,17 @@
 app_name: "GeneralFrameworkApp"
 jwt_secret: "pawstickchief"
 server:
-  address: "0.0.0.0"
+  address: "127.0.0.1"
   port: 8080
   redirect_port: 8443
   client_url: "http://127.0.0.1"
-  cert_file: "F:/data/workspace/General_Framework_Gin/ssl/file/cert.pem"
-  key_file: "F:/data/workspace/General_Framework_Gin/ssl/file/privkey.key"
+  cert_file: "ssl/file/cert.pem"
+  key_file: "ssl/file/privkey.key"
+
+casbin:
+  model_file: "conf/casbin_model.conf"
+  policy_file: "conf/casbin_policy.csv"
+
 log:
   mode: "dev"  # 可选: dev, build
   filename: "./logs/app.log"
@@ -23,7 +28,7 @@ file_storage:
   chunk_size: 5        # 单个分块大小 (MB)
 
 update:
-  server_url: "https://update.server.com"
+  server_url: "https://127.0.0.1"
   platform: "linux"
   app_name: "GeneralFrameworkApp"
 
