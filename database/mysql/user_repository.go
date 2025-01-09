@@ -7,8 +7,31 @@ import (
 	"log"
 )
 
+func GetUsers(page, limit int) ([]business.User, int64, error) {
+	var users []business.User
+	var total int64
+
+	// 计算偏移量
+	offset := (page - 1) * limit
+
+	// 查询总记录数
+	if err := DB.Model(&business.User{}).Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("error counting users: %w", err)
+	}
+
+	// 查询当前页的数据
+	err := DB.Select("id, username, email, role, created_at").
+		Offset(offset).
+		Limit(limit).
+		Find(&users).Error
+	if err != nil {
+		return nil, 0, fmt.Errorf("error fetching users: %w", err)
+	}
+
+	return users, total, nil
+}
 func GetUserByUsername(name *string) (user business.User, err error) {
-	query := `SELECT id, username, password, role FROM users WHERE username = ? LIMIT 1`
+	query := `SELECT id, username, role,email,created_at FROM users WHERE username = ? LIMIT 1`
 
 	// 使用 GORM 的 Raw 方法执行查询
 	result := DB.Raw(query, *name).Scan(&user)

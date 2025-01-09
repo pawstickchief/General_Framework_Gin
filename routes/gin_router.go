@@ -3,6 +3,7 @@ package routes
 import (
 	"General_Framework_Gin/controllers"
 	"General_Framework_Gin/middleware"
+	"General_Framework_Gin/routes/menus"
 	"General_Framework_Gin/routes/policy"
 	"General_Framework_Gin/routes/user"
 	"General_Framework_Gin/schemas"
@@ -41,7 +42,7 @@ func SetupRouter(appConfig *schemas.Config) *gin.Engine {
 	// 注册用户管理路由 (示例子路由)
 	user.RegisterUserRoutes(authGroup)
 	policy.RegisterPolicyRoutes(authGroup)
-
+	menus.RegisterMenusRoutes(authGroup)
 	// 404 路由处理
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
