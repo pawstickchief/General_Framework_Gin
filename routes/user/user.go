@@ -14,8 +14,9 @@ func RegisterUserRoutes(authGroup *gin.RouterGroup) {
 	userGroup := authGroup.Group("/users")
 	{
 		userGroup.POST("/", listUsers)
-		userGroup.PUT("/:id", updateUser)
-		userGroup.DELETE("/:id", deleteUser)
+		userGroup.PUT("/update", updateUser)
+		userGroup.POST("/add", addUser)
+		userGroup.POST("/delete", deleteUser)
 
 	}
 }
@@ -36,7 +37,7 @@ func listUsers(ctx *gin.Context) {
 	}
 
 	// 调用数据库方法获取用户列表
-	usersList, total, err := mysql.GetUsers(params.Page, params.Limit)
+	usersList, total, err := mysql.GetUsers(params)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "查询用户列表失败", "details": err.Error()})
 		return
@@ -52,10 +53,67 @@ func listUsers(ctx *gin.Context) {
 	})
 }
 
+// 添加新用户
+func addUser(ctx *gin.Context) {
+	role := ctx.GetString("role") // 获取 URL 参数 ?role=xxx
+	if role == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "角色参数不能为空"})
+		return
+	}
+	var params business.User
+	if err := ctx.ShouldBindJSON(&params); err != nil {
+		// 使用自定义错误响应
+		controllers.ResponseErrorWithMsg(ctx, controllers.CodeInvalidParam, "分页参数验证失败: "+err.Error())
+		return
+	}
+	err := mysql.AddUser(params.Username, params.Password, params.Email, params.Role)
+	if err != nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"message": "添加用户失败",
+			"users":   params.Username,
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "成功添加用户",
+		"users":   params.Username,
+	})
+}
+
 func updateUser(ctx *gin.Context) {
+	role := ctx.GetString("role") // 获取 URL 参数 ?role=xxx
+	if role == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "角色参数不能为空"})
+		return
+	}
+	var params business.User
+	if err := ctx.ShouldBindJSON(&params); err != nil {
+		// 使用自定义错误响应
+		controllers.ResponseErrorWithMsg(ctx, controllers.CodeInvalidParam, "参数验证失败: "+err.Error())
+		return
+	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "更新用户成功"})
 }
 
 func deleteUser(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "删除用户成功"})
+	role := ctx.GetString("role") // 获取 URL 参数 ?role=xxx
+	if role == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "角色参数不能为空"})
+		return
+	}
+	var params business.User
+	if err := ctx.ShouldBindJSON(&params); err != nil {
+		// 使用自定义错误响应
+		controllers.ResponseErrorWithMsg(ctx, controllers.CodeInvalidParam, "参数验证失败: "+err.Error())
+		return
+	}
+
+	err := mysql.DeleteUserByID(params.ID)
+	if err != nil {
+		ctx.JSON(http.StatusOK, gin.H{"message": "删除用户失败",
+			"users": params.Username})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "删除用户成功",
+		"users": params.Username})
 }

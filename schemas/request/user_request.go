@@ -2,8 +2,9 @@ package request
 
 // LoginRequest 用户登录请求结构体
 type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Username   string `json:"username" binding:"required"`
+	Password   string `json:"password" binding:"required"`
+	ReMemberMe *bool  `json:"rememberMe"`
 }
 type LoginUpdatePasswordRequest struct {
 	Username string `json:"username" binding:"required"`

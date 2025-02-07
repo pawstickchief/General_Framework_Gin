@@ -4,7 +4,6 @@ import (
 	"General_Framework_Gin/config"
 
 	"General_Framework_Gin/database/mysql"
-	"General_Framework_Gin/schemas/business"
 	"General_Framework_Gin/schemas/request"
 
 	"github.com/dgrijalva/jwt-go"
@@ -38,8 +37,19 @@ func LoginUserVerif(c *gin.Context) {
 		return
 	}
 
+	// **确保 `rememberMe` 具有默认值**
+	rememberMe := false
+
+	if loginReq.ReMemberMe != nil {
+		rememberMe = *loginReq.ReMemberMe
+	}
+	// **根据 `rememberMe` 选择 Token 过期时间**
+	expirationTime := time.Now().Add(24 * time.Hour) // 默认 1 天
+	if rememberMe {                                  // 记住登录 7 天
+		expirationTime = time.Now().Add(7 * 24 * time.Hour)
+	}
+
 	// 创建 JWT Token
-	expirationTime := time.Now().Add(24 * time.Hour)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": user.Username,
 		"role":     user.Role,
@@ -55,9 +65,13 @@ func LoginUserVerif(c *gin.Context) {
 	// 设置角色到上下文
 	c.Set("role", user.Role)
 
-	// 返回成功响应
-	ResponseSuccess(c, business.Token{Token: tokenString})
+	// **返回 Token 和过期时间**
+	ResponseSuccess(c, gin.H{
+		"token":     tokenString,
+		"expiresIn": int(expirationTime.Sub(time.Now()).Seconds()), // 以秒为单位返回
+	})
 }
+
 func UpdateUserPassword(c *gin.Context) {
 	var loginReq request.LoginUpdatePasswordRequest
 	if err := c.ShouldBindJSON(&loginReq); err != nil {
