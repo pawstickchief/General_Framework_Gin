@@ -2,8 +2,9 @@ package menus
 
 import (
 	"General_Framework_Gin/database/mysql"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // RegisterMenusRoutes 注册用户管理相关路由
@@ -15,6 +16,13 @@ func RegisterMenusRoutes(authGroup *gin.RouterGroup) {
 		userGroup.PUT("/:id", updateMenus)
 		userGroup.DELETE("/:id", deleteMenus)
 
+	}
+	menuGroup := authGroup.Group("/menu")
+	{
+		menuGroup.GET("/", listMenus)
+		menuGroup.POST("/", createMenus)
+		menuGroup.PUT("/:id", updateMenus)
+		menuGroup.DELETE("/:id", deleteMenus)
 	}
 }
 

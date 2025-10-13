@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"General_Framework_Gin/config"
+	"General_Framework_Gin/schemas/business"
+	"log"
 
 	"General_Framework_Gin/database/mysql"
 	"General_Framework_Gin/schemas/request"
@@ -65,6 +67,23 @@ func LoginUserVerif(c *gin.Context) {
 	// 设置角色到上下文
 	c.Set("role", user.Role)
 
+	ip := c.ClientIP()
+
+	// 写入登录日志
+	logEntry := business.UserLoginLog{
+		UserID:      uint(user.ID),
+		Username:    user.Username,
+		Role:        user.Role,
+		LoginTime:   time.Now(),
+		IPAddress:   ip,
+		TokenExpire: expirationTime,
+		Remark:      "用户登录成功",
+	}
+
+	if err := mysql.DB.Create(&logEntry).Error; err != nil {
+		log.Printf("写入登录日志失败: %v\n", err)
+		// 不影响主流程，可忽略返回
+	}
 	// **返回 Token 和过期时间**
 	ResponseSuccess(c, gin.H{
 		"token":     tokenString,

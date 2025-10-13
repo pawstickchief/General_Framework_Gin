@@ -3,6 +3,7 @@ package routes
 import (
 	"General_Framework_Gin/controllers"
 	"General_Framework_Gin/middleware"
+	"General_Framework_Gin/routes/dashboard"
 	"General_Framework_Gin/routes/menus"
 	"General_Framework_Gin/routes/policy"
 	"General_Framework_Gin/routes/user"
@@ -43,6 +44,7 @@ func SetupRouter(appConfig *schemas.Config) *gin.Engine {
 	user.RegisterUserRoutes(authGroup)
 	policy.RegisterPolicyRoutes(authGroup)
 	menus.RegisterMenusRoutes(authGroup)
+	dashboard.RegisterDashRoutes(authGroup)
 	// 404 路由处理
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

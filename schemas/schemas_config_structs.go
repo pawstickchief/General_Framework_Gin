@@ -38,6 +38,7 @@ type ServerConfig struct {
 // LogConfig 日志配置
 type LogConfig struct {
 	Mode       string `mapstructure:"mode"`
+	Level      string `mapstructure:"level"`
 	Filename   string `mapstructure:"filename"`
 	MaxSize    int    `mapstructure:"max_size"`
 	MaxBackups int    `mapstructure:"max_backups"`
